@@ -28,14 +28,12 @@ class CryptoCoinUseCaseImpl @Inject constructor(
     private val filterList: MutableList<Int> = mutableListOf(-1, -1, -1)
     private var filterText: String = ""
     private var cryptoCoinList: List<CryptoCoinData>? = null
-    //private var displayCryptoList: List<CryptoCoinData> = emptyList()
     override suspend fun getCryptoCoinList(): UIState {
         return runCatching {
             cryptoCoinList = cryptoCoinRepository.getCryptoCoinList()
             if (cryptoCoinList.isNullOrEmpty()) {
                 CryptoCoinUIState.CryptoCoinFailure
             } else {
-                //displayCryptoList = cryptoCoinList ?: emptyList()
                 CryptoCoinUIState.CryptoCoinSuccess(
                     cryptoCoinUIDataMapper.invoke(
                         cryptoCoinList ?: emptyList()
@@ -49,7 +47,6 @@ class CryptoCoinUseCaseImpl @Inject constructor(
 
     override suspend fun textFilter(filterText: String): UIState {
         this.filterText = filterText
-        //displayCryptoList = cryptoCoinList ?: emptyList()
         val filteredList = if (filterList.any { it != -1 }) {
             filterListV2()
         } else {
