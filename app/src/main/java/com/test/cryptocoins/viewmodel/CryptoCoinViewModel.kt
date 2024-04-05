@@ -26,4 +26,18 @@ class CryptoCoinViewModel @Inject constructor(private val cryptoCoinUseCase: Cry
             _cryptoListMutableLiveData.postValue(result)
         }
     }
+
+    fun applySearchFilter(filterText: String) {
+        viewModelScope.launch {
+            val result = cryptoCoinUseCase.textFilter(filterText)
+            _cryptoListMutableLiveData.postValue(result)
+        }
+    }
+
+    fun applyChipFilters(key: Int, chipFilters: Int) {
+        viewModelScope.launch {
+            val result = cryptoCoinUseCase.applyChipFilters(key, chipFilters)
+            _cryptoListMutableLiveData.postValue(result)
+        }
+    }
 }

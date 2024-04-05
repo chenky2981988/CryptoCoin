@@ -1,6 +1,8 @@
 package com.test.cryptocoins.di
 
 import com.test.cryptocoins.common.NetworkUtils
+import com.test.cryptocoins.mapper.CryptoCoinUIDataMapper
+import com.test.cryptocoins.mapper.CryptoCoinUIDataMapperImpl
 import com.test.cryptocoins.repository.CryptoCoinRepository
 import com.test.cryptocoins.repository.CryptoCoinRepositoryImpl
 import com.test.cryptocoins.service.CryptoCoinService
@@ -30,6 +32,10 @@ abstract class CryptoCoinModule {
     @ViewModelScoped
     @Binds
     abstract fun bindingCryptoCoinRepository(impl: CryptoCoinRepositoryImpl): CryptoCoinRepository
+
+    @ViewModelScoped
+    @Binds
+    abstract fun bindingCryptoCoinUIDataMapper(impl: CryptoCoinUIDataMapperImpl): CryptoCoinUIDataMapper
 }
 
 @InstallIn(ViewModelComponent::class)
@@ -39,9 +45,8 @@ class CryptoCoinNetworkModule {
     @ViewModelScoped
     @Provides
     fun provideCryptoCoinService(
-        @Named(NetworkUtils.RETROFIT_BUILDER)
-        builder: Retrofit.Builder,
-    ): CryptoCoinService = builder.baseUrl(NetworkUtils.BASE_URL).build()
-        .create(CryptoCoinService::class.java)
+        @Named(NetworkUtils.RETROFIT_BUILDER) builder: Retrofit.Builder,
+    ): CryptoCoinService =
+        builder.baseUrl(NetworkUtils.BASE_URL).build().create(CryptoCoinService::class.java)
 
 }

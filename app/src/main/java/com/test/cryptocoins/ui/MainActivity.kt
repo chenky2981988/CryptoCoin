@@ -11,9 +11,11 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.android.material.chip.ChipGroup
 import com.google.android.material.chip.ChipGroup.OnCheckedStateChangeListener
 import com.test.cryptocoins.R
+import com.test.cryptocoins.common.CryptoCoinConstants
 import com.test.cryptocoins.common.UIState
 import com.test.cryptocoins.databinding.ActivityMainBinding
 import com.test.cryptocoins.model.CryptoCoinData
+import com.test.cryptocoins.model.CryptoCoinUIModel
 import com.test.cryptocoins.model.CryptoCoinUIState
 import com.test.cryptocoins.ui.adapter.CryptoCoinRecyclerAdapter
 import com.test.cryptocoins.viewmodel.CryptoCoinViewModel
@@ -26,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private val cryptoCoinViewModel: CryptoCoinViewModel by viewModels()
     private var cryptoCoinRecyclerAdapter: CryptoCoinRecyclerAdapter? = null
+    private var searchView: SearchView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         // getting search view of our item.
 
         // getting search view of our item.
-        val searchView: SearchView? = searchItem?.actionView as SearchView?
+        searchView = searchItem?.actionView as SearchView?
 
         // below line is to call set on query text listener method.
 
@@ -62,14 +65,16 @@ class MainActivity : AppCompatActivity() {
                 override fun onQueryTextChange(newText: String?): Boolean {
                     // inside on query text change method we are
                     // calling a method to filter our recycler view.
-                    if(newText != null) {
-                        cryptoCoinRecyclerAdapter?.textFilter(newText.toString())
+                    if (newText != null) {
+                        //cryptoCoinRecyclerAdapter?.textFilter(newText.toString())
+                        cryptoCoinViewModel.applySearchFilter(newText.toString())
                     }
                     return false
                 }
             })
             setOnCloseListener {
-                cryptoCoinRecyclerAdapter?.textFilter("")
+                //cryptoCoinRecyclerAdapter?.textFilter("")
+                cryptoCoinViewModel.applySearchFilter("")
                 false
             }
         }
@@ -79,20 +84,39 @@ class MainActivity : AppCompatActivity() {
 
     private fun setChipFilterListener() {
         binding.coinTokenChipGroup.setOnCheckedStateChangeListener { coinTokenGroup, coinTokenList ->
-            Log.d("TAG","coinTokenList : $coinTokenList")
-            Log.d("TAG","is Only Token Selected : ${coinTokenGroup.checkedChipId == R.id.onlyTokenChip}")
-            Log.d("TAG","coinTokenGroup selected chip : ${coinTokenGroup.checkedChipId}")
-            cryptoCoinRecyclerAdapter?.coinTokenFilterList(coinTokenGroup.checkedChipId)
+            Log.d("TAG", "coinTokenList : $coinTokenList")
+            Log.d(
+                "TAG",
+                "is Only Token Selected : ${coinTokenGroup.checkedChipId == R.id.onlyTokenChip}"
+            )
+            Log.d("TAG", "coinTokenGroup selected chip : ${coinTokenGroup.checkedChipId}")
+            Log.d("TAG", "Search Text : ${searchView?.query.toString()}")
+            //cryptoCoinRecyclerAdapter?.coinTokenFilterList(coinTokenGroup.checkedChipId)
+            cryptoCoinViewModel.applyChipFilters(
+                CryptoCoinConstants.KEY_TOKEN_COIN,
+                coinTokenGroup.checkedChipId
+            )
         }
         binding.activeInActiveChipGroup.setOnCheckedStateChangeListener { activeInactiveChipGroup, coinTokenList ->
-            Log.d("TAG","activeInActiveChip : $coinTokenList")
-            Log.d("TAG","activeInactiveChipGroup selected chip: ${activeInactiveChipGroup.checkedChipId}")
-            cryptoCoinRecyclerAdapter?.activeInactiveFilterList(activeInactiveChipGroup.checkedChipId)
+            Log.d("TAG", "activeInActiveChip : $coinTokenList")
+            Log.d(
+                "TAG",
+                "activeInactiveChipGroup selected chip: ${activeInactiveChipGroup.checkedChipId}"
+            )
+            //cryptoCoinRecyclerAdapter?.activeInactiveFilterList(activeInactiveChipGroup.checkedChipId)
+            cryptoCoinViewModel.applyChipFilters(
+                CryptoCoinConstants.KEY_ACTIVE_INACTIVE,
+                activeInactiveChipGroup.checkedChipId
+            )
         }
         binding.newCoinChipGroup.setOnCheckedStateChangeListener { newCoinChipGroup, coinTokenList ->
-            Log.d("TAG","newCoinChipGroup : $coinTokenList")
-            Log.d("TAG","newCoinChipGroup selected chip: ${newCoinChipGroup.checkedChipId}")
-            cryptoCoinRecyclerAdapter?.newCoinFilterList(newCoinChipGroup.checkedChipId)
+            Log.d("TAG", "newCoinChipGroup : $coinTokenList")
+            Log.d("TAG", "newCoinChipGroup selected chip: ${newCoinChipGroup.checkedChipId}")
+            //cryptoCoinRecyclerAdapter?.newCoinFilterList(newCoinChipGroup.checkedChipId)
+            cryptoCoinViewModel.applyChipFilters(
+                CryptoCoinConstants.KEY_NEW_COIN,
+                newCoinChipGroup.checkedChipId
+            )
         }
     }
 
@@ -107,13 +131,21 @@ class MainActivity : AppCompatActivity() {
                 is UIState.Loading -> {
                     Log.d("TAG", "Loading")
                 }
+
                 is CryptoCoinUIState.CryptoCoinSuccess -> {
                     Log.d("TAG", "Success with data ${it.cryptoCoinList.size}")
                     showCryptoList(it.cryptoCoinList)
                 }
+
+                is CryptoCoinUIState.CryptoCoinFilterList -> {
+                    Log.d("TAG", "CryptoCoinFilterList")
+                    cryptoCoinRecyclerAdapter?.setFilterList(it.cryptoCoinList)
+                }
+
                 is CryptoCoinUIState.CryptoCoinFailure -> {
                     Log.d("TAG", "CryptoCoinFailure")
                 }
+
                 is UIState.Error -> {
                     Log.d("TAG", "Error")
                 }
@@ -121,8 +153,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showCryptoList(cryptoCoinList: List<CryptoCoinData>) {
-        if(cryptoCoinRecyclerAdapter == null) {
+    private fun showCryptoList(cryptoCoinList: List<CryptoCoinUIModel>) {
+        if (cryptoCoinRecyclerAdapter == null) {
             cryptoCoinRecyclerAdapter = CryptoCoinRecyclerAdapter(cryptoCoinList)
             binding.cryptoCoinsRecyclerView.apply {
                 adapter = cryptoCoinRecyclerAdapter
