@@ -2,6 +2,7 @@ package com.test.cryptocoins.usecase
 
 import com.test.cryptocoins.R
 import com.test.cryptocoins.common.CryptoCoinConstants
+import com.test.cryptocoins.common.CryptoCoinConstants.KEY_TOKEN_COIN
 import com.test.cryptocoins.common.UIState
 import com.test.cryptocoins.mapper.CryptoCoinUIDataMapper
 import com.test.cryptocoins.model.CryptoCoinData
@@ -46,10 +47,20 @@ class CryptoCoinUseCaseImpl @Inject constructor(
         this.filterText = filterText
         displayCryptoList = cryptoCoinList ?: emptyList()
         if (filterList.any { it != -1 }) {
-            filterList()
+            filterListV2()
         } else {
             filterInternalList()
         }
+        return CryptoCoinUIState.CryptoCoinFilterList(
+            cryptoCoinUIDataMapper.invoke(
+                displayCryptoList
+            )
+        )
+    }
+
+    override suspend fun applyChipFilters(key: Int, chipFilters: Int): UIState {
+        filterList[key] = chipFilters
+        filterListV2()
         return CryptoCoinUIState.CryptoCoinFilterList(
             cryptoCoinUIDataMapper.invoke(
                 displayCryptoList
@@ -69,95 +80,65 @@ class CryptoCoinUseCaseImpl @Inject constructor(
         }
     }
 
-    private fun filterList() {
+    private fun filterListV2() {
         filterInternalList()
-        var coinTokenFilterList = emptyList<CryptoCoinData>()
-        when {
-            filterList[CryptoCoinConstants.KEY_TOKEN_COIN] != -1 -> {
-                when {
-                    filterList[CryptoCoinConstants.KEY_TOKEN_COIN] == R.id.onlyTokenChip -> {
-                        coinTokenFilterList = this.displayCryptoList.filter { cryptoCoinData ->
-                            cryptoCoinData.type == "token"
-                        }
-                    }
-
-                    filterList[CryptoCoinConstants.KEY_TOKEN_COIN] == R.id.onlyCoinChip -> {
-                        coinTokenFilterList = this.displayCryptoList.filter { cryptoCoinData ->
-                            cryptoCoinData.type == "coin"
-                        }
-                    }
-
-                    else -> {
-                        coinTokenFilterList = this.displayCryptoList.filter { cryptoCoinData ->
-                            cryptoCoinData.type == "coin" || cryptoCoinData.type == "token"
-                        }
-                    }
-                }
-            } else -> {
-            coinTokenFilterList = this.displayCryptoList
+        val type = getTypeFilter()
+        val activeInActiveFilter = getActiveInActiveFilter()
+        val newCoinFilter = getNewCoinFilter()
+        val newFilterList = displayCryptoList.filter { cryptoCoinData ->
+            if (type != null) {
+                cryptoCoinData.type == type
+            } else {
+                true
+            }
+        }.filter { cryptoCoinData ->
+            if (activeInActiveFilter != null) {
+                cryptoCoinData.isActive == activeInActiveFilter
+            } else {
+                true
+            }
+        }.filter { cryptoCoinData ->
+            if (newCoinFilter != null) {
+                cryptoCoinData.isNew == newCoinFilter
+            } else {
+                true
             }
         }
-        var activeInActiveFilterList = emptyList<CryptoCoinData>()
-        when {
-            filterList[CryptoCoinConstants.KEY_ACTIVE_INACTIVE] != -1 -> {
-                when {
-                    filterList[CryptoCoinConstants.KEY_ACTIVE_INACTIVE] == R.id.activeCoinsChip -> {
-                        activeInActiveFilterList = coinTokenFilterList.filter { cryptoCoinData ->
-                            cryptoCoinData.isActive == true
-                        }
-                    }
-
-                    filterList[CryptoCoinConstants.KEY_ACTIVE_INACTIVE] == R.id.inActiveCoinsChip -> {
-                        activeInActiveFilterList = coinTokenFilterList.filter { cryptoCoinData ->
-                            cryptoCoinData.isActive == false
-                        }
-                    }
-
-                    else -> {
-                        activeInActiveFilterList = coinTokenFilterList.filter { cryptoCoinData ->
-                            cryptoCoinData.isActive == true || cryptoCoinData.isActive == false
-                        }
-                    }
-                }
-            }
-            else -> {
-                activeInActiveFilterList = coinTokenFilterList
-            }
-        }
-        var newCoinFilterList = emptyList<CryptoCoinData>()
-        when {
-            filterList[CryptoCoinConstants.KEY_NEW_COIN] != -1 -> {
-                newCoinFilterList = when (R.id.newCoinsChip) {
-                    filterList[CryptoCoinConstants.KEY_NEW_COIN] -> {
-                        activeInActiveFilterList.filter { cryptoCoinData ->
-                            cryptoCoinData.isNew == true
-                        }
-                    }
-
-                    else -> {
-                        activeInActiveFilterList.filter { cryptoCoinData ->
-                            cryptoCoinData.isNew == false || cryptoCoinData.isNew == true
-                        }
-                    }
-                }
-            }
-
-            else -> {
-                newCoinFilterList = activeInActiveFilterList.filter { cryptoCoinData ->
-                    cryptoCoinData.isNew == false || cryptoCoinData.isNew == true
-                }
-            }
-        }
-        displayCryptoList = newCoinFilterList
+        this.displayCryptoList = newFilterList
     }
 
-    override suspend fun applyChipFilters(key: Int, chipFilters: Int): UIState {
-        filterList[key] = chipFilters
-        filterList()
-        return CryptoCoinUIState.CryptoCoinFilterList(
-            cryptoCoinUIDataMapper.invoke(
-                displayCryptoList
-            )
-        )
+    private fun getTypeFilter(): String? {
+        return if (filterList[KEY_TOKEN_COIN] != -1) {
+            when (filterList[KEY_TOKEN_COIN]) {
+                R.id.onlyTokenChip -> "token"
+                R.id.onlyCoinChip -> "coin"
+                else -> null
+            }
+        } else {
+            null
+        }
+    }
+
+    private fun getActiveInActiveFilter(): Boolean? {
+        return if (filterList[CryptoCoinConstants.KEY_ACTIVE_INACTIVE] != -1) {
+            when (filterList[CryptoCoinConstants.KEY_ACTIVE_INACTIVE]) {
+                R.id.activeCoinsChip -> true
+                R.id.inActiveCoinsChip -> false
+                else -> null
+            }
+        } else {
+            null
+        }
+    }
+
+    private fun getNewCoinFilter(): Boolean? {
+        return if (filterList[CryptoCoinConstants.KEY_NEW_COIN] != -1) {
+            when (filterList[CryptoCoinConstants.KEY_NEW_COIN]) {
+                R.id.newCoinsChip -> true
+                else -> null
+            }
+        } else {
+            null
+        }
     }
 }
