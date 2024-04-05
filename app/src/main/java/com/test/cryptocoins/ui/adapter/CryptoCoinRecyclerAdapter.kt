@@ -1,5 +1,6 @@
 package com.test.cryptocoins.ui.adapter
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -33,6 +34,7 @@ class CryptoCoinRecyclerAdapter(cryptoCoinList: List<CryptoCoinUIModel>) :
         return displayCryptoList.size
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     fun setFilterList(filterList: List<CryptoCoinUIModel>) {
         this.displayCryptoList = filterList
         notifyDataSetChanged()
@@ -50,28 +52,6 @@ class CryptoCoinRecyclerAdapter(cryptoCoinList: List<CryptoCoinUIModel>) :
                 cryptoSymbolTv.text = cryptoCoinData.symbol
                 coinIv.setImageResource(cryptoCoinData.cryptoIcon)
                 root.setBackgroundColor(root.context.getColor(cryptoCoinData.backgroundColor))
-                /*when {
-                    cryptoCoinData.type.equals(
-                        "coin",
-                        ignoreCase = true
-                    ) && cryptoCoinData.isActive == true -> {
-                        coinIv.setImageResource(R.drawable.crypto_coin)
-                        binding.root.setBackgroundColor(root.context.getColor(android.R.color.transparent))
-                    }
-
-                    cryptoCoinData.type.equals(
-                        "token",
-                        ignoreCase = true
-                    ) && cryptoCoinData.isActive == true -> {
-                        coinIv.setImageResource(R.drawable.crypto_token)
-                        binding.root.setBackgroundColor(root.context.getColor(android.R.color.transparent))
-                    }
-
-                    cryptoCoinData.isActive == false -> {
-                        coinIv.setImageResource(R.drawable.crypto_disabled)
-                        binding.root.setBackgroundColor(root.context.getColor(R.color.light_gray))
-                    }
-                }*/
             }
         }
     }

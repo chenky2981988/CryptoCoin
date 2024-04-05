@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">CryptoCoins</string>
     <string name="search">Search</string>
+    <string name="new_coins">New Coins</string>
+    <string name="inactive_coins">Inactive Coins</string>
+    <string name="active_coins">Active Coins</string>
+    <string name="only_coins">Only Coins</string>
+    <string name="only_tokens">Only Tokens</string>
 </resources>

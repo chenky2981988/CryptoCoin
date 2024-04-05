@@ -37,18 +37,18 @@
             app:singleSelection="true">
 
             <com.google.android.material.chip.Chip
-                style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:id="@+id/onlyTokenChip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Only Tokens" />
+                android:text="@string/only_tokens" />
 
             <com.google.android.material.chip.Chip
-                style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:id="@+id/onlyCoinChip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Only Coins" />
+                android:text="@string/only_coins" />
 
         </com.google.android.material.chip.ChipGroup>
 
@@ -61,19 +61,18 @@
             app:singleSelection="true">
 
             <com.google.android.material.chip.Chip
-                style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:id="@+id/activeCoinsChip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Active Coins" />
+                android:text="@string/active_coins" />
 
             <com.google.android.material.chip.Chip
-                style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:id="@+id/inActiveCoinsChip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Inactive Coins" />
-
+                android:text="@string/inactive_coins" />
 
         </com.google.android.material.chip.ChipGroup>
 
@@ -88,11 +87,11 @@
             app:singleSelection="true">
 
             <com.google.android.material.chip.Chip
-                style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:id="@+id/newCoinsChip"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New Coins" />
+                android:text="@string/new_coins" />
 
         </com.google.android.material.chip.ChipGroup>
 

@@ -3,6 +3,7 @@ package com.test.cryptocoins.ui
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
@@ -23,7 +24,7 @@ import dagger.hilt.android.AndroidEntryPoint
 
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), OnCheckedStateChangeListener {
 
     private lateinit var binding: ActivityMainBinding
     private val cryptoCoinViewModel: CryptoCoinViewModel by viewModels()
@@ -42,19 +43,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         // inside inflater we are inflating our menu file.
         menuInflater.inflate(R.menu.crypto_coin_menu, menu)
-
-        // below line is to get our menu item.
-
         // below line is to get our menu item.
         val searchItem = menu?.findItem(R.id.actionSearch)
-
-        // getting search view of our item.
-
         // getting search view of our item.
         searchView = searchItem?.actionView as SearchView?
-
-        // below line is to call set on query text listener method.
-
         // below line is to call set on query text listener method.
         searchView?.apply {
             setOnQueryTextListener(object : OnQueryTextListener {
@@ -66,14 +58,12 @@ class MainActivity : AppCompatActivity() {
                     // inside on query text change method we are
                     // calling a method to filter our recycler view.
                     if (newText != null) {
-                        //cryptoCoinRecyclerAdapter?.textFilter(newText.toString())
                         cryptoCoinViewModel.applySearchFilter(newText.toString())
                     }
                     return false
                 }
             })
             setOnCloseListener {
-                //cryptoCoinRecyclerAdapter?.textFilter("")
                 cryptoCoinViewModel.applySearchFilter("")
                 false
             }
@@ -83,40 +73,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setChipFilterListener() {
-        binding.coinTokenChipGroup.setOnCheckedStateChangeListener { coinTokenGroup, coinTokenList ->
-            Log.d("TAG", "coinTokenList : $coinTokenList")
-            Log.d(
-                "TAG",
-                "is Only Token Selected : ${coinTokenGroup.checkedChipId == R.id.onlyTokenChip}"
-            )
-            Log.d("TAG", "coinTokenGroup selected chip : ${coinTokenGroup.checkedChipId}")
-            Log.d("TAG", "Search Text : ${searchView?.query.toString()}")
-            //cryptoCoinRecyclerAdapter?.coinTokenFilterList(coinTokenGroup.checkedChipId)
-            cryptoCoinViewModel.applyChipFilters(
-                CryptoCoinConstants.KEY_TOKEN_COIN,
-                coinTokenGroup.checkedChipId
-            )
-        }
-        binding.activeInActiveChipGroup.setOnCheckedStateChangeListener { activeInactiveChipGroup, coinTokenList ->
-            Log.d("TAG", "activeInActiveChip : $coinTokenList")
-            Log.d(
-                "TAG",
-                "activeInactiveChipGroup selected chip: ${activeInactiveChipGroup.checkedChipId}"
-            )
-            //cryptoCoinRecyclerAdapter?.activeInactiveFilterList(activeInactiveChipGroup.checkedChipId)
-            cryptoCoinViewModel.applyChipFilters(
-                CryptoCoinConstants.KEY_ACTIVE_INACTIVE,
-                activeInactiveChipGroup.checkedChipId
-            )
-        }
-        binding.newCoinChipGroup.setOnCheckedStateChangeListener { newCoinChipGroup, coinTokenList ->
-            Log.d("TAG", "newCoinChipGroup : $coinTokenList")
-            Log.d("TAG", "newCoinChipGroup selected chip: ${newCoinChipGroup.checkedChipId}")
-            //cryptoCoinRecyclerAdapter?.newCoinFilterList(newCoinChipGroup.checkedChipId)
-            cryptoCoinViewModel.applyChipFilters(
-                CryptoCoinConstants.KEY_NEW_COIN,
-                newCoinChipGroup.checkedChipId
-            )
+        binding.apply {
+            coinTokenChipGroup.setOnCheckedStateChangeListener(this@MainActivity)
+            activeInActiveChipGroup.setOnCheckedStateChangeListener(this@MainActivity)
+            newCoinChipGroup.setOnCheckedStateChangeListener(this@MainActivity)
         }
     }
 
@@ -129,25 +89,30 @@ class MainActivity : AppCompatActivity() {
         cryptoCoinViewModel.cryptoListLiveData.observe(this) {
             when (it) {
                 is UIState.Loading -> {
+                    // Either show loader or shimmer effect
                     Log.d("TAG", "Loading")
                 }
 
                 is CryptoCoinUIState.CryptoCoinSuccess -> {
-                    Log.d("TAG", "Success with data ${it.cryptoCoinList.size}")
                     showCryptoList(it.cryptoCoinList)
                 }
 
                 is CryptoCoinUIState.CryptoCoinFilterList -> {
-                    Log.d("TAG", "CryptoCoinFilterList")
                     cryptoCoinRecyclerAdapter?.setFilterList(it.cryptoCoinList)
                 }
 
-                is CryptoCoinUIState.CryptoCoinFailure -> {
-                    Log.d("TAG", "CryptoCoinFailure")
-                }
+                is CryptoCoinUIState.CryptoCoinFailure -> Toast.makeText(
+                    applicationContext,
+                    "Error in crypto coins data",
+                    Toast.LENGTH_SHORT
+                ).show()
 
                 is UIState.Error -> {
-                    Log.d("TAG", "Error")
+                    Toast.makeText(
+                        applicationContext,
+                        "Something went wrong! Try after some time",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -163,6 +128,29 @@ class MainActivity : AppCompatActivity() {
                         this.context,
                         DividerItemDecoration.VERTICAL
                     )
+                )
+            }
+        }
+    }
+
+    override fun onCheckedChanged(chipGroup: ChipGroup, selectedChipList: MutableList<Int>) {
+        when (chipGroup.id) {
+            R.id.coinTokenChipGroup -> {
+                cryptoCoinViewModel.applyChipFilters(
+                    CryptoCoinConstants.KEY_TOKEN_COIN,
+                    chipGroup.checkedChipId
+                )
+            }
+            R.id.activeInActiveChipGroup -> {
+                cryptoCoinViewModel.applyChipFilters(
+                    CryptoCoinConstants.KEY_ACTIVE_INACTIVE,
+                    chipGroup.checkedChipId
+                )
+            }
+            R.id.newCoinChipGroup -> {
+                cryptoCoinViewModel.applyChipFilters(
+                    CryptoCoinConstants.KEY_NEW_COIN,
+                    chipGroup.checkedChipId
                 )
             }
         }
