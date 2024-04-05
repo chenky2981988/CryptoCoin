@@ -9,34 +9,23 @@
     android:paddingTop="6dp"
     android:paddingBottom="6dp">
 
-    <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/newTagIv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/new_product_tag"
-        android:visibility="gone"
-        android:padding="4dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible" />
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="2dp"
         app:layout_constraintEnd_toStartOf="@+id/coinIv"
-        app:layout_constraintStart_toEndOf="@+id/newTagIv"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/cryptoNameTv"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:ellipsize="end"
             android:lines="1"
             android:textColor="@android:color/black"
             android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="Bitcoin" />
@@ -50,10 +39,21 @@
             android:lines="1"
             android:textColor="@android:color/darker_gray"
             android:textSize="12sp"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/cryptoNameTv"
             tools:text="BTC" />
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/newTagIv"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:padding="4dp"
+            android:src="@drawable/new_rectangle_icon"
+            android:visibility="gone"
+            app:layout_constraintStart_toEndOf="@+id/cryptoNameTv"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
