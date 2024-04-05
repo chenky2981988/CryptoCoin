@@ -28,15 +28,19 @@ class CryptoCoinUseCaseImpl @Inject constructor(
     private val filterList: MutableList<Int> = mutableListOf(-1, -1, -1)
     private var filterText: String = ""
     private var cryptoCoinList: List<CryptoCoinData>? = null
-    private var displayCryptoList: List<CryptoCoinData> = emptyList()
+    //private var displayCryptoList: List<CryptoCoinData> = emptyList()
     override suspend fun getCryptoCoinList(): UIState {
         return runCatching {
             cryptoCoinList = cryptoCoinRepository.getCryptoCoinList()
             if (cryptoCoinList.isNullOrEmpty()) {
                 CryptoCoinUIState.CryptoCoinFailure
             } else {
-                displayCryptoList = cryptoCoinList ?: emptyList()
-                CryptoCoinUIState.CryptoCoinSuccess(cryptoCoinUIDataMapper.invoke(displayCryptoList))
+                //displayCryptoList = cryptoCoinList ?: emptyList()
+                CryptoCoinUIState.CryptoCoinSuccess(
+                    cryptoCoinUIDataMapper.invoke(
+                        cryptoCoinList ?: emptyList()
+                    )
+                )
             }
         }.getOrElse {
             UIState.Error(throwable = it)
@@ -45,66 +49,69 @@ class CryptoCoinUseCaseImpl @Inject constructor(
 
     override suspend fun textFilter(filterText: String): UIState {
         this.filterText = filterText
-        displayCryptoList = cryptoCoinList ?: emptyList()
-        if (filterList.any { it != -1 }) {
+        //displayCryptoList = cryptoCoinList ?: emptyList()
+        val filteredList = if (filterList.any { it != -1 }) {
             filterListV2()
         } else {
             filterInternalList()
         }
         return CryptoCoinUIState.CryptoCoinFilterList(
             cryptoCoinUIDataMapper.invoke(
-                displayCryptoList
+                filteredList
             )
         )
     }
 
     override suspend fun applyChipFilters(key: Int, chipFilters: Int): UIState {
         filterList[key] = chipFilters
-        filterListV2()
+        val filteredList = filterListV2()
         return CryptoCoinUIState.CryptoCoinFilterList(
             cryptoCoinUIDataMapper.invoke(
-                displayCryptoList
+                filteredList
             )
         )
     }
 
-    private fun filterInternalList() {
-        if (filterText.isEmpty()) {
-            this.displayCryptoList = cryptoCoinList ?: emptyList()
+    private fun filterInternalList(): List<CryptoCoinData> {
+        return if (filterText.isEmpty()) {
+            cryptoCoinList ?: emptyList()
         } else {
             val filteredList = cryptoCoinList?.filter {
                 (it.name?.contains(filterText, ignoreCase = true) == true) ||
                         (it.symbol?.contains(filterText, ignoreCase = true) == true)
             }
-            this.displayCryptoList = filteredList ?: emptyList()
+            filteredList ?: emptyList()
         }
     }
 
-    private fun filterListV2() {
-        filterInternalList()
-        val type = getTypeFilter()
-        val activeInActiveFilter = getActiveInActiveFilter()
-        val newCoinFilter = getNewCoinFilter()
-        val newFilterList = displayCryptoList.filter { cryptoCoinData ->
-            if (type != null) {
-                cryptoCoinData.type == type
-            } else {
-                true
-            }
-        }.filter { cryptoCoinData ->
-            if (activeInActiveFilter != null) {
-                cryptoCoinData.isActive == activeInActiveFilter
-            } else {
-                true
-            }
-        }.filter { cryptoCoinData ->
-            if (newCoinFilter != null) {
-                cryptoCoinData.isNew == newCoinFilter
-            } else {
-                true
+    private fun filterListV2(): List<CryptoCoinData> {
+        val searchFilterList = filterInternalList()
+        return if (searchFilterList.isEmpty()) {
+            emptyList()
+        } else {
+            val type = getTypeFilter()
+            val activeInActiveFilter = getActiveInActiveFilter()
+            val newCoinFilter = getNewCoinFilter()
+            searchFilterList.filter { cryptoCoinData ->
+                if (type != null) {
+                    cryptoCoinData.type == type
+                } else {
+                    true
+                }
+            }.filter { cryptoCoinData ->
+                if (activeInActiveFilter != null) {
+                    cryptoCoinData.isActive == activeInActiveFilter
+                } else {
+                    true
+                }
+            }.filter { cryptoCoinData ->
+                if (newCoinFilter != null) {
+                    cryptoCoinData.isNew == newCoinFilter
+                } else {
+                    true
+                }
             }
         }
-        this.displayCryptoList = newFilterList
     }
 
     private fun getTypeFilter(): String? {
