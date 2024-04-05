@@ -29,7 +29,7 @@ class CryptoCoinViewModel @Inject constructor(private val cryptoCoinUseCase: Cry
 
     fun applySearchFilter(filterText: String) {
         viewModelScope.launch {
-            val result = cryptoCoinUseCase.textFilter(filterText)
+            val result = cryptoCoinUseCase.searchTextFilter(filterText)
             _cryptoListMutableLiveData.postValue(result)
         }
     }

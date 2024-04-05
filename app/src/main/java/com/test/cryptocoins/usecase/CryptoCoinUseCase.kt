@@ -2,6 +2,7 @@ package com.test.cryptocoins.usecase
 
 import com.test.cryptocoins.R
 import com.test.cryptocoins.common.CryptoCoinConstants
+import com.test.cryptocoins.common.CryptoCoinConstants.EMPTY_STRING
 import com.test.cryptocoins.common.CryptoCoinConstants.KEY_TOKEN_COIN
 import com.test.cryptocoins.common.UIState
 import com.test.cryptocoins.mapper.CryptoCoinUIDataMapper
@@ -16,7 +17,7 @@ import javax.inject.Inject
  */
 interface CryptoCoinUseCase {
     suspend fun getCryptoCoinList(): UIState
-    suspend fun textFilter(filterText: String): UIState
+    suspend fun searchTextFilter(filterText: String): UIState
     suspend fun applyChipFilters(key: Int, chipFilters: Int): UIState
 }
 
@@ -25,8 +26,8 @@ class CryptoCoinUseCaseImpl @Inject constructor(
     private val cryptoCoinUIDataMapper: CryptoCoinUIDataMapper,
 ) :
     CryptoCoinUseCase {
-    private val filterList: MutableList<Int> = mutableListOf(-1, -1, -1)
-    private var filterText: String = ""
+    private val filterList: MutableList<Int> = mutableListOf(-1, -1, -1) // -1 is default filter value
+    private var filterText: String = EMPTY_STRING // default empty text
     private var cryptoCoinList: List<CryptoCoinData>? = null
     override suspend fun getCryptoCoinList(): UIState {
         return runCatching {
@@ -45,7 +46,7 @@ class CryptoCoinUseCaseImpl @Inject constructor(
         }
     }
 
-    override suspend fun textFilter(filterText: String): UIState {
+    override suspend fun searchTextFilter(filterText: String): UIState {
         this.filterText = filterText
         val filteredList = if (filterList.any { it != -1 }) {
             filterListV2()

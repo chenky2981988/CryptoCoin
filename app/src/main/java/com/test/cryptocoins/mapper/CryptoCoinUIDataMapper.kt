@@ -2,9 +2,9 @@ package com.test.cryptocoins.mapper
 
 import android.view.View
 import com.test.cryptocoins.R
+import com.test.cryptocoins.common.CryptoCoinConstants
 import com.test.cryptocoins.model.CryptoCoinData
 import com.test.cryptocoins.model.CryptoCoinUIModel
-import java.util.function.Function
 import javax.inject.Inject
 
 
@@ -32,8 +32,8 @@ class CryptoCoinUIDataMapperImpl @Inject constructor() : CryptoCoinUIDataMapper 
                 }
             }
             CryptoCoinUIModel(
-                name = it.name ?: "",
-                symbol = it.symbol ?: "",
+                name = it.name ?: CryptoCoinConstants.EMPTY_STRING,
+                symbol = it.symbol ?: CryptoCoinConstants.EMPTY_STRING,
                 newTagVisibility = when (it.isNew) {
                     true -> View.VISIBLE
                     else -> View.GONE
