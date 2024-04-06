@@ -3,6 +3,7 @@ package com.test.cryptocoins.ui
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
+import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -91,9 +92,11 @@ class MainActivity : AppCompatActivity(), OnCheckedStateChangeListener {
                 is UIState.Loading -> {
                     // Either show loader or shimmer effect
                     Log.d("TAG", "Loading")
+                    showLoadingView()
                 }
 
                 is CryptoCoinUIState.CryptoCoinSuccess -> {
+                    showLoadingView(false)
                     showCryptoList(it.cryptoCoinList)
                 }
 
@@ -101,19 +104,43 @@ class MainActivity : AppCompatActivity(), OnCheckedStateChangeListener {
                     cryptoCoinRecyclerAdapter?.setFilterList(it.cryptoCoinList)
                 }
 
-                is CryptoCoinUIState.CryptoCoinFailure -> Toast.makeText(
-                    applicationContext,
-                    "Error in crypto coins data",
-                    Toast.LENGTH_SHORT
-                ).show()
+                is CryptoCoinUIState.CryptoCoinFailure -> {
+                    showLoadingView(false)
+                    Toast.makeText(
+                        applicationContext,
+                        "Error in crypto coins data",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
 
                 is UIState.Error -> {
+                    showLoadingView(false)
                     Toast.makeText(
                         applicationContext,
                         "Something went wrong! Try after some time",
                         Toast.LENGTH_SHORT
                     ).show()
                 }
+            }
+        }
+    }
+
+    private fun showLoadingView(shouldShowLoading: Boolean = true) {
+        with(binding) {
+            if (shouldShowLoading) {
+                shimmerLayout.apply {
+                    visibility = View.VISIBLE
+                    startShimmer()
+                }
+                cryptoCoinsRecyclerView.visibility = View.GONE
+                coinFilterLayout.visibility = View.GONE
+            } else {
+                shimmerLayout.apply {
+                    visibility = View.GONE
+                    stopShimmer()
+                }
+                cryptoCoinsRecyclerView.visibility = View.VISIBLE
+                coinFilterLayout.visibility = View.VISIBLE
             }
         }
     }

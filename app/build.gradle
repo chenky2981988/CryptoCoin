@@ -71,6 +71,9 @@ dependencies {
     implementation libs.retrofit
     implementation libs.converter.gson
     implementation libs.logging.interceptor
+    // Facebook shimmer
+    implementation libs.shimmer
+
     //JUnit 5
     testImplementation libs.androidx.junit
     testImplementation libs.androidx.junit.ktx

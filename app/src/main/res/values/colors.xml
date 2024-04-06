@@ -6,6 +6,7 @@
     <color name="textColorPrimary">#FFFFFF</color>
     <color name="textColorSecondary">#FF817E7E</color>
     <color name="backgroundDisableGray">#FFB3AEAE</color>
+    <color name="shimmerColor">#C2C2C2</color>
     <color name="background_color_chip_state_selected">#FF817E7E</color>
     <color name="background_color_chip_state_not_selected">#FFECECEC</color>
     <color name="purple_200">#FFBB86FC</color>
