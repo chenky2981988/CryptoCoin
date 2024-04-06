@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity(), OnCheckedStateChangeListener {
                 }
 
                 is CryptoCoinUIState.CryptoCoinSuccess -> {
-                    showLoadingView(false)
+                    showLoadingView(shouldShowLoading = false)
                     showCryptoList(it.cryptoCoinList)
                 }
 
@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity(), OnCheckedStateChangeListener {
                 }
 
                 is CryptoCoinUIState.CryptoCoinFailure -> {
-                    showLoadingView(false)
+                    showLoadingView(shouldShowLoading = false, isError = true)
                     Toast.makeText(
                         applicationContext,
                         "Error in crypto coins data",
@@ -114,7 +114,7 @@ class MainActivity : AppCompatActivity(), OnCheckedStateChangeListener {
                 }
 
                 is UIState.Error -> {
-                    showLoadingView(false)
+                    showLoadingView(shouldShowLoading = false, isError = true)
                     Toast.makeText(
                         applicationContext,
                         "Something went wrong! Try after some time",
@@ -125,7 +125,7 @@ class MainActivity : AppCompatActivity(), OnCheckedStateChangeListener {
         }
     }
 
-    private fun showLoadingView(shouldShowLoading: Boolean = true) {
+    private fun showLoadingView(shouldShowLoading: Boolean = true, isError: Boolean = false) {
         with(binding) {
             if (shouldShowLoading) {
                 shimmerLayout.apply {
@@ -139,8 +139,14 @@ class MainActivity : AppCompatActivity(), OnCheckedStateChangeListener {
                     visibility = View.GONE
                     stopShimmer()
                 }
-                cryptoCoinsRecyclerView.visibility = View.VISIBLE
-                coinFilterLayout.visibility = View.VISIBLE
+                if (isError) {
+                    cryptoCoinsRecyclerView.visibility = View.GONE
+                    coinFilterLayout.visibility = View.GONE
+                } else {
+                    cryptoCoinsRecyclerView.visibility = View.VISIBLE
+                    coinFilterLayout.visibility = View.VISIBLE
+                }
+
             }
         }
     }
@@ -168,12 +174,14 @@ class MainActivity : AppCompatActivity(), OnCheckedStateChangeListener {
                     chipGroup.checkedChipId
                 )
             }
+
             R.id.activeInActiveChipGroup -> {
                 cryptoCoinViewModel.applyChipFilters(
                     CryptoCoinConstants.KEY_ACTIVE_INACTIVE,
                     chipGroup.checkedChipId
                 )
             }
+
             R.id.newCoinChipGroup -> {
                 cryptoCoinViewModel.applyChipFilters(
                     CryptoCoinConstants.KEY_NEW_COIN,
